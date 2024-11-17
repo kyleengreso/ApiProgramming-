@@ -92,6 +92,14 @@ def delete_book(book_id):
     db.session.commit()
     return jsonify({"success": True, "message": "Book deleted successfully"}), HTTPStatus.OK
 
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"success": False, "error": "Resource not found"}), HTTPStatus.NOT_FOUND
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({"success": False, "error": "Internal Server Error"}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 if __name__ == "__main__":
     app.run(debug=True)
