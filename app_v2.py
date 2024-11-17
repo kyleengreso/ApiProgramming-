@@ -20,7 +20,6 @@ class Book(db.Model):
 def find_book(book_id):
     return Book.query.get(book_id)
 
-
 @app.route("/")
 def hello_user():
     return "Hello, User!"
@@ -42,6 +41,30 @@ def get_book(book_id):
         )
     book_data = {"id": book.id, "title": book.title, "author": book.author, "year": book.year}
     return jsonify({"success": True, "data": book_data}), HTTPStatus.OK
+
+@app.route("/api/books", methods=["POST"])
+def create_book():
+    if not request.is_json:
+        return (
+            jsonify({"success": False, "error": "Content-type must be application/json"}),
+            HTTPStatus.BAD_REQUEST,
+        )
+    data = request.get_json()
+    required_fields = ["title", "author", "year"]
+
+    for field in required_fields:
+        if field not in data:
+            return (
+                jsonify({"success": False, "error": f"Missing required field: {field}"}),
+                HTTPStatus.BAD_REQUEST,
+            )
+
+    new_book = Book(title=data["title"], author=data["author"], year=data["year"])
+    db.session.add(new_book)
+    db.session.commit()
+
+    return jsonify({"success": True, "data": {"id": new_book.id, "title": new_book.title, "author": new_book.author, "year": new_book.year}}), HTTPStatus.CREATED
+
 
 if __name__ == "__main__":
     app.run(debug=True)
