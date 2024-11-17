@@ -25,6 +25,23 @@ def find_book(book_id):
 def hello_user():
     return "Hello, User!"
 
+@app.route("/api/books", methods=["GET"])
+def get_books():
+    books = Book.query.all()
+    books_data = [{"id": book.id, "title": book.title, "author": book.author, "year": book.year} for book in books]
+    return jsonify({"success": True, "data": books_data, "total": len(books_data)}), HTTPStatus.OK
+
+
+@app.route("/api/books/<int:book_id>", methods=["GET"])
+def get_book(book_id):
+    book = find_book(book_id)
+    if book is None:
+        return (
+            jsonify({"success": False, "error": "Book not found"}),
+            HTTPStatus.NOT_FOUND,
+        )
+    book_data = {"id": book.id, "title": book.title, "author": book.author, "year": book.year}
+    return jsonify({"success": True, "data": book_data}), HTTPStatus.OK
 
 if __name__ == "__main__":
     app.run(debug=True)
