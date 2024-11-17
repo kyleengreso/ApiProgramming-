@@ -86,7 +86,7 @@ def create_book():
     return jsonify({"success": True, "data": new_book}), HTTPStatus.CREATED
 
 
-@app.route("api/books/<int:book_id>", methods=["PUT"])
+@app.route("/api/books/<int:book_id>", methods=["PUT"])
 def update_book(book_id):
     book = find_book(book_id)
     if book is None:
