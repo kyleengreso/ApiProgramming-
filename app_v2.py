@@ -65,6 +65,33 @@ def create_book():
 
     return jsonify({"success": True, "data": {"id": new_book.id, "title": new_book.title, "author": new_book.author, "year": new_book.year}}), HTTPStatus.CREATED
 
+@app.route("/api/books/<int:book_id>", methods=["PUT"])
+def update_book(book_id):
+    book = find_book(book_id)
+    if book is None:
+        return jsonify({"success": False, "error": "Book not found"}), HTTPStatus.NOT_FOUND
+
+    data = request.get_json()
+    for key in ["title", "author", "year"]:
+        if key in data:
+            setattr(book, key, data[key])
+
+    db.session.commit()
+
+    updated_book = {"id": book.id, "title": book.title, "author": book.author, "year": book.year}
+    return jsonify({"success": True, "data": updated_book}), HTTPStatus.OK
+
+
+@app.route("/api/books/<int:book_id>", methods=["DELETE"])
+def delete_book(book_id):
+    book = find_book(book_id)
+    if book is None:
+        return jsonify({"success": False, "error": "Book not found"}), HTTPStatus.NOT_FOUND
+
+    db.session.delete(book)
+    db.session.commit()
+    return jsonify({"success": True, "message": "Book deleted successfully"}), HTTPStatus.OK
+
 
 if __name__ == "__main__":
     app.run(debug=True)
